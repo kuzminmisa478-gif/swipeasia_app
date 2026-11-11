@@ -1,4 +1,3 @@
-/* Места, у которых есть своё фото: файл img/places/<id>.webp.
+/* Места, у которых есть своё фото: файл img/places/<id>.webp (+ превью img/places/t/<id>.webp).
    Добавил фото - впиши сюда id. Остальные показывают фото категории «для настроения». */
-window.PLACE_PHOTOS = [
-];
+window.PLACE_PHOTOS = ["alpaca-cafe", "alpaca-store", "altitude", "anrizon", "artisan", "atelier", "atlas", "august-closet", "ba-ho", "bai-dai", "bai-duong", "be-smoothie", "bloom-spa", "bo-ne-3-ngon", "casa-spa", "cathedral", "central-beach", "chekhov", "cho-dam", "cilantro", "daisy-bloom", "doc-let", "egoist", "evo-center", "evo-sever", "gold-coast", "grand-spa", "greek-kitchen", "green-pea", "henri", "i-resort", "icepan", "izakaya-kiwami", "junkyard", "kem-bo-vfruit", "lamy", "lilu", "livin", "long-son", "mam", "marina-beach-club", "mia-resort", "mixue", "moc-moc", "momonosuke", "monkey-island", "mr-tom-sushi", "mys-spa", "narcissus", "nghia-son", "nhu-tien", "night-market", "nt-center", "ola-cafe", "olv-ab", "optimist", "pasta-de-pasta", "pho-gari", "poem-of-nature", "ponagar", "ramen-kaji", "red-brick", "sam-lor", "shop-78s", "skylight", "stockholm", "streetwear-1995", "suoi-do", "sweet-secret", "tacos-3-chi-em", "thap-ba", "tiffins", "tomita-sushi", "truong-son", "ume-cafe", "ustu", "ustugova", "van-don", "vinh-hai", "voila", "xom-moi", "xuong-1925", "yang-bay", "yen-coffee"];

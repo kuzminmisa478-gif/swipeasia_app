@@ -218,7 +218,8 @@
 
   function schedule(d, base, food, used, quiz, mode) {
     const stops = [];
-    let t = (quiz.pace === 'active' ? 8 * 60 : 9 * 60);
+    // Начало дня: из анкеты («активные часы»), иначе по темпу
+    let t = quiz.dayStart ? quiz.dayStart * 60 : (quiz.pace === 'active' ? 8 * 60 : 9 * 60);
     let cur = base;
     const add = (p, kind) => {
       const travel = travelMin(cur, p);
