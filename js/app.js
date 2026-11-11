@@ -30,7 +30,7 @@
 
   let S = Object.assign(fresh(), load() || {});
   S.quiz = Object.assign(fresh().quiz, S.quiz || {});
-  if (S.screen === 'loading') S.screen = S.route ? 'trip' : 'matches';
+  S.screen = 'start'; // каждый запуск начинается со старта: оттуда «Моя поездка» или «Закрыть»
   function fresh() {
     return {
       screen: 'start', qOpen: 'when',
@@ -74,25 +74,37 @@
 
   /* ---------- Telegram ---------- */
   if (tg) {
-    try { tg.ready(); tg.expand(); tg.setHeaderColor('#F6F3EC'); tg.setBackgroundColor('#F6F3EC'); tg.disableVerticalSwipes && tg.disableVerticalSwipes(); } catch (e) {}
+    try { tg.ready(); tg.expand(); tg.setHeaderColor('#F6F3EC'); tg.setBackgroundColor('#F6F3EC'); } catch (e) {}
     tg.BackButton && tg.BackButton.onClick(back);
   }
+  // Навигация - дерево без петель: старт ← анкета ← интро ← свайп ← мэтчи ← поездка ← старт.
+  // На старте кнопка «Назад» Telegram скрыта, вместо неё «Закрыть» - так всегда можно выйти в бота.
   function back() {
     if (closeSheet()) return;
-    const s = S.screen;
-    if (s === 'quiz') go(S.route ? 'matches' : 'start');
-    else if (s === 'intro') go('quiz');
-    else if (s === 'swipe') go(S.route ? 'matches' : 'intro');
-    else if (s === 'matches') go('swipe');
-    else if (s === 'trip' && S.tab !== 'trip') { S.tab = 'trip'; save(); render(); }
-    else if (s === 'trip') go('matches');
-    else if (s === 'roulette') { if (S.rstep === 'spin') go('roulette', { rstep: 0 }); else go('start'); }
+    const s = S.screen, has = !!S.route;
+    if (s === 'trip' && S.tab !== 'trip') { S.tab = 'trip'; save(); render(); return; }
+    const to = {
+      quiz: has ? 'trip' : 'start',
+      intro: 'quiz',
+      swipe: has ? 'matches' : 'intro',
+      matches: has ? 'trip' : 'swipe',
+      loading: 'matches',
+      trip: 'start',
+      roulette: S.rstep === 'spin' ? 'roulette' : 'start',
+    }[s] || 'start';
+    go(to, to === 'roulette' ? { rstep: 0 } : to === 'trip' ? { tab: 'trip' } : null);
   }
   function syncBack() {
-    if (!tg || !tg.BackButton) return;
-    S.screen !== 'start' || document.querySelector('.sheet-bg') ? tg.BackButton.show() : tg.BackButton.hide();
+    if (!tg) return;
+    try {
+      const atRoot = S.screen === 'start' && !document.querySelector('.sheet-bg');
+      if (tg.BackButton) atRoot ? tg.BackButton.hide() : tg.BackButton.show();
+      // Свайп вниз закрывает мини-апп: мешает только на свайпе карточек и на карте
+      const lock = ['swipe', 'trip', 'roulette'].includes(S.screen);
+      if (lock && tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      if (!lock && tg.enableVerticalSwipes) tg.enableVerticalSwipes();
+    } catch (e) {}
   }
-
   /* ---------- Render ---------- */
   function render() {
     $tabs.hidden = S.screen !== 'trip';
@@ -485,7 +497,7 @@
     $app.innerHTML = `
       <div class="trip">
         <div id="map" class="map-full"></div>
-        <div class="map-top"><button class="round" data-tomatches aria-label="К мэтчам">←</button><span class="mt-title">SWIPEASIA · Нячанг</span><button class="round" data-toquiz aria-label="Анкета">⚙</button></div>
+        <div class="map-top"><button class="round" data-home aria-label="На главную">⌂</button><span class="mt-title">SWIPEASIA · Нячанг</span><button class="round" data-tomatches aria-label="Мои мэтчи">♥</button></div>
         <section class="tsheet" style="top:${y}px">
           <div class="tgrab"><div class="grip"></div>
             <div class="th"><div><h2>Твой Нячанг на ${plural(n, 'день', 'дня', 'дней')}</h2><small>${tripDates()}${esc(modeLabel(R.mode))} · старт: ${esc(baseNow().label || 'центр')}</small></div></div>
@@ -497,8 +509,8 @@
         </section>
       </div>`;
     $app.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { const k = b.dataset.day; S.day = k === 'x' ? 'x' : +k; if (!S.snap || S.snap === 'low') S.snap = 'mid'; save(); render(); });
+    $app.querySelector('[data-home]').onclick = () => go('start');
     $app.querySelector('[data-tomatches]').onclick = () => go('matches');
-    $app.querySelector('[data-toquiz]').onclick = () => go('quiz');
     bindTrip();
     sheetDrag($app.querySelector('.tsheet'));
     const days = cur === 0 || cur === 'x' ? R.days : [R.days[cur - 1]];
@@ -866,7 +878,7 @@
       try {
         const c = JSON.parse(v); if (!c.picks || !Object.keys(c.picks).length) return;
         S = Object.assign(fresh(), c); S.quiz = Object.assign(fresh().quiz, c.quiz || {});
-        buildRoute(); S.screen = 'trip';
+        buildRoute(); S.screen = 'start';
         save(); render();
       } catch (e) {}
     }); } catch (e) {}
