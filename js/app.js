@@ -83,9 +83,10 @@
     const has = !!S.route;
     $app.innerHTML = `
     <section class="start">
-      <div class="start-photo"><img src="img/ui/cover.webp" alt=""><span class="brand">SWIPEASIA</span></div>
+      <div class="start-photo"><img src="img/ui/cover.webp" alt=""></div>
       <div class="start-body">
-        <h1>Свидание с Нячангом</h1>
+        <span class="kicker">Свидание с Нячангом</span>
+        <h1>SWIPEASIA</h1>
         <p class="lead">Свайпаешь места как анкеты - получаешь маршрут по дням с картой и ценами на Grab. Места собрал местный.</p>
         <div class="cities">
           <div class="city on"><div><b>Нячанг</b><br><small>${PLACES.length} мест в базе</small></div><span class="hand" style="color:var(--forest)">Погнали</span></div>
@@ -207,17 +208,17 @@
       <article class="card ${cls}" data-id="${p.id}">
         <img class="ph" src="${img(p)}" alt="">
         <span class="illu">Фото для настроения</span>
-        ${cls === 'top' ? '<button class="more" data-more aria-label="Подробнее">i</button><span class="stamp yes">Беру</span><span class="stamp no">Не мой тип</span><span class="stamp must">Обязательно</span>' : ''}
+        ${cls === 'front' ? '<button class="more" data-more aria-label="Подробнее">i</button><span class="stamp yes">Беру</span><span class="stamp no">Не мой тип</span><span class="stamp must">Обязательно</span>' : ''}
         <div class="info"><span class="cat">${CAT_LABEL[p.cat] || p.cat}</span><h3>${esc(p.name)}</h3><p>${esc(p.phrase)}</p>
           <div class="chips">${chips(p)}</div></div>
       </article>`;
     $app.innerHTML = `
       <section class="swipe">
         <div class="swipe-top"><button class="icon-btn" data-back aria-label="Назад">←</button><div class="counter">Выбрано <b>${picked()}</b> · осталось ${Math.max(0, S.deck.length - S.idx)}</div><button class="icon-btn" data-list aria-label="Мэтчи">♥</button></div>
-        <div class="deck">
-          ${id ? (nextId ? card(BY[nextId], 'back') : '') + card(BY[id], 'top')
+        <div class="deck"><div class="deck-in">
+          ${id ? (nextId ? card(BY[nextId], 'back') : '') + card(BY[id], 'front')
                : `<div class="empty"><div><h3>Анкеты закончились</h3><p>Выбрано ${picked()}. Самое время собрать маршрут.</p></div></div>`}
-        </div>
+        </div></div>
         ${id ? `<div class="actions"><button class="act" data-a="no" aria-label="Не мой тип">✕</button><button class="act must" data-a="must" aria-label="Обязательно">★</button><button class="act yes" data-a="like" aria-label="Беру">♥</button></div>` : ''}
         <div class="swipe-foot"><button class="btn ${picked() >= 3 ? 'btn-lime' : 'btn-ghost'} btn-block" data-build ${picked() ? '' : 'disabled'}>Собрать маршрут${picked() ? ' · ' + picked() : ''}</button></div>
       </section>`;
@@ -225,7 +226,7 @@
     $app.querySelector('[data-list]').onclick = () => go('matches');
     $app.querySelector('[data-build]').onclick = () => go('matches');
     $app.querySelectorAll('[data-a]').forEach(b => b.onclick = () => decide(b.dataset.a));
-    const top = $app.querySelector('.card.top');
+    const top = $app.querySelector('.card.front');
     if (top) { drag(top); top.querySelector('[data-more]').onclick = e => { e.stopPropagation(); sheet(BY[top.dataset.id], { swipe: true }); }; }
   }
   function chips(p) {
@@ -238,7 +239,7 @@
   }
   function decide(kind, el) {
     const id = S.deck[S.idx]; if (!id) return;
-    const card = el || $app.querySelector('.card.top');
+    const card = el || $app.querySelector('.card.front');
     if (kind === 'like' || kind === 'must') { S.picks[id] = kind; haptic(kind === 'must' ? 'ok' : 'light'); }
     else { delete S.picks[id]; haptic('soft'); }
     const dx = kind === 'no' ? -1 : kind === 'like' ? 1 : 0, dy = kind === 'must' ? -1 : 0;
