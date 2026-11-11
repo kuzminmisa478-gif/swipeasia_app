@@ -224,3 +224,53 @@ img { display: block; max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 @media (min-width: 560px) { body { max-width: 480px; margin: 0 auto; } #tabs { max-width: 480px; margin: 0 auto; } }
+
+/* Flip cards */
+.card { perspective: 1400px; background: transparent; box-shadow: none; overflow: visible; }
+.card .flip { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.2,.7,.3,1); border-radius: 26px; box-shadow: 0 12px 30px rgba(21,41,30,.22); }
+.card.flipped .flip { transform: rotateY(180deg); }
+.card::after { display: none; }
+.face { position: absolute; inset: 0; border-radius: 26px; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.face-front { background: var(--forest); }
+.face-front::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(21,41,30,.96) 0, rgba(21,41,30,.6) 34%, rgba(21,41,30,0) 58%); pointer-events: none; }
+.face-back { transform: rotateY(180deg); background: var(--card); color: var(--ink); }
+.card .turn { position: absolute; top: 10px; right: 10px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; background: rgba(21,41,30,.55); color: var(--paper); display: grid; place-items: center; font-size: 18px; }
+.bk { height: 100%; overflow: hidden; padding: 18px 18px 14px; display: flex; flex-direction: column; }
+.bk .cat { align-self: flex-start; }
+.bk h3 { color: var(--ink); font-size: 25px; margin: 2px 0 2px; }
+.bk .latin { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.bk .phrase { color: var(--ink); font-size: 14.5px; margin: 4px 0 2px; }
+.bk .tip { font-size: 13.5px; line-height: 1.4; padding: 9px 12px; margin: 8px 0 4px; }
+.bk .tip .from { font-size: 18px; margin-bottom: 2px; }
+.bk .warn { font-size: 13px; padding: 7px 12px; margin: 4px 0; }
+.bk .kv { font-size: 13px; gap: 2px 12px; margin: 6px 0 8px; }
+.bk .row-btns { margin-top: auto; }
+.bk .row-btns .btn { min-height: 40px; font-size: 13.5px; padding: 0 14px; flex: 1; }
+.bk .turnback { text-align: center; font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.card .stamp { z-index: 4; }
+.flip-hint { position: absolute; left: 50%; top: 42%; transform: translateX(-50%); z-index: 5; background: var(--lime); color: var(--forest); font-weight: 700; font-size: 13.5px; padding: 9px 14px; border-radius: 999px; white-space: nowrap; pointer-events: none; box-shadow: 0 6px 16px rgba(21,41,30,.25); animation: hint 1.6s ease-in-out infinite; }
+@keyframes hint { 50% { transform: translateX(-50%) translateY(-4px); } }
+
+/* Trip head back */
+.head-back { display: block; font-size: 13.5px; font-weight: 600; color: var(--lime); padding: 4px 0 8px; }
+
+/* Start: roulette entry */
+.roul-entry { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; padding: 14px 16px; border-radius: 18px; background: var(--forest-2); color: var(--paper); margin: -8px 0 20px; border: 1.5px dashed #5F7A68; }
+.roul-entry .em { font-size: 26px; }
+.roul-entry b { display: block; font-size: 16px; }
+.roul-entry small { display: block; color: #B9C7BB; font-size: 13px; line-height: 1.35; }
+.roul-entry .arrow { margin-left: auto; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--lime); color: var(--forest); display: grid; place-items: center; font-weight: 700; }
+
+/* Roulette */
+.kicker-dark { font: 600 24px/1 var(--hand); color: var(--forest-2); transform: rotate(-3deg); display: inline-block; margin: 6px 0 6px; }
+.roul h2 { margin-top: 2px; }
+.roul h4 { margin: 14px 0 8px; font-size: 14px; color: var(--muted); font-weight: 600; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { padding: 10px 14px; border-radius: 999px; background: var(--card); font-size: 14.5px; font-weight: 600; border: 1.5px solid transparent; }
+.pill.on { background: var(--forest); color: var(--paper); }
+.rnote { margin: 0 var(--pad) 8px; font-size: 13px; color: var(--muted); text-align: center; }
+.rhint { text-align: center; font-size: 13px; color: var(--muted); margin: 0; }
+.spinfx { position: absolute; inset: 0; z-index: 10; border-radius: 26px; background: var(--forest); display: grid; place-items: center; text-align: center; padding: 24px; transition: opacity .2s; }
+.spinfx span { font: 600 30px/1.1 var(--serif); color: var(--lime); }
+.spinfx.out { opacity: 0; }
+.go-head { font: 600 24px/1.1 var(--hand); color: var(--forest-2); padding: 4px var(--pad) 0; }

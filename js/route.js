@@ -33,6 +33,17 @@
     return Math.round((d / speed) * 60 + 10);
   }
 
+  // Режимы: bike / car - Grab, mbike / mcar - Maxim. Maxim по опыту Миши на 20-30% дешевле Grab, берём середину.
+  const MAXIM = 0.75;
+  const vehicle = mode => /car$/.test(mode) ? 'car' : 'bike';
+  const isMaxim = mode => mode === 'mbike' || mode === 'mcar';
+  const MODES = {
+    bike: { label: 'Grab байк', short: 'байк' },
+    car: { label: 'Grab машина', short: 'машина' },
+    mbike: { label: 'Maxim байк', short: 'Maxim байк' },
+    mcar: { label: 'Maxim машина', short: 'Maxim машина' },
+  };
+
   // Grab: по скринам Миши от Panorama. Город ≈ 6 200 ₫ за км по прямой, минимум 13 000 ₫.
   // Машина ≈ байк × 3 в городе и × 3,8 на дальних поездках.
   // Цена со скрина Миши, если поездка из города к месту со скрином (поле grab: «байк 84 000 ₫, машина 320 000 ₫»)
@@ -43,6 +54,11 @@
     return mode === 'car' ? n(car) : n(bike);
   }
   function grab(a, b, mode) {
+    const v = vehicle(mode);
+    const fare = grabFare(a, b, v);
+    return isMaxim(mode) ? Math.round(fare * MAXIM / 1000) * 1000 : fare;
+  }
+  function grabFare(a, b, mode) {
     const d = km(a, b);
     if (d > 6) {
       const inCity = km(a, CENTER) < 5 ? b : km(b, CENTER) < 5 ? a : null;
@@ -54,6 +70,12 @@
     if (d > 12) bike = Math.round(d * 5.1);
     const car = Math.round(bike * (d > 12 ? 3.8 : 3));
     return (mode === 'car' ? car : bike) * 1000;
+  }
+
+  // Старт дня: геопозиция (если в пределах Нячанга) или выбранный район
+  function baseOf(quiz) {
+    if (quiz && quiz.base === 'geo' && quiz.geo) return { lat: quiz.geo.lat, lng: quiz.geo.lng, label: 'Моя геопозиция' };
+    return BASES[quiz && quiz.base] || Object.assign({ label: 'Центр' }, CENTER);
   }
 
   function slotOf(p) {
@@ -123,8 +145,8 @@
   */
   function build(places, picks, quiz) {
     const days = Math.max(1, Math.min(10, quiz.days || 4));
-    const base = BASES[quiz.base] || CENTER;
-    const mode = quiz.transport === 'car' ? 'car' : 'bike';
+    const base = baseOf(quiz);
+    const mode = MODES[quiz.transport] ? quiz.transport : 'bike';
     const perDay = quiz.pace === 'active' ? 4 : 2;
 
     const all = places.map(p => Object.assign({}, p, { _liked: !!picks[p.id], _must: picks[p.id] === 'must' }));
@@ -243,6 +265,6 @@
     return { n: d.n, stops, far: d.far ? d.far.id : null, grabTotal };
   }
 
-  root.Route = { build, km, grab, travelMin, BASES, CENTER };
+  root.Route = { build, km, grab, travelMin, baseOf, BASES, CENTER, MODES, MAXIM };
   if (typeof module !== 'undefined') module.exports = root.Route;
 })(typeof window !== 'undefined' ? window : globalThis);
